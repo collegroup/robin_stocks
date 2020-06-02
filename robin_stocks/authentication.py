@@ -7,6 +7,22 @@ import random
 import robin_stocks.helper as helper
 import robin_stocks.urls as urls
 
+import getpass
+import requests
+import six
+import dateutil
+import time
+import random
+import hmac, base64, struct, hashlib
+
+def get_mfa_token(secret):
+    intervals_no = int(time.time())//30
+    key = base64.b32decode(secret, True)
+    msg = struct.pack(">Q", intervals_no)
+    h = hmac.new(key, msg, hashlib.sha1).digest()
+    o = h[19] & 15
+    h = '{0:06d}'.format((struct.unpack(">I", h[o:o+4])[0] & 0x7fffffff) % 1000000)
+    return h
 
 def generate_device_token():
     """This function will generate a token used when loggin on.
@@ -51,7 +67,7 @@ def respond_to_challenge(challenge_id, sms_code):
     return(helper.request_post(url, payload))
 
 
-def login(username=None, password=None, expiresIn=86400, scope='internal', by_sms=True, store_session=True):
+def login(username=None, password=None, qrcode=None, expiresIn=86400, scope='internal', by_sms=True, store_session=False):
     """This function will effectivly log the user into robinhood by getting an
     authentication token and saving it to the session header. By default, it
     will store the authentication token in a pickle file and load that value
@@ -101,6 +117,7 @@ def login(username=None, password=None, expiresIn=86400, scope='internal', by_sm
         'device_token': device_token
     }
     # If authentication has been stored in pickle file then load it. Stops login server from being pinged so much.
+    print(f"Pickle path is: {pickle_path}")
     if os.path.isfile(pickle_path):
         # If store_session has been set to false then delete the pickle file, otherwise try to load it.
         # Loading pickle file will fail if the acess_token has expired.
@@ -135,21 +152,30 @@ def login(username=None, password=None, expiresIn=86400, scope='internal', by_sm
             os.remove(pickle_path)
     # Try to log in normally.
     if not username:
-        username = input("Robinhood username: ")
-        payload['username'] = username
+        if os.environ["ROBINHOOD_USERNAME"]:
+            payload['username'] = os.environ["ROBINHOOD_USERNAME"]
+        else:
+            payload['username'] = input("Enter Robinhood username:\n")    
     if not password:
-        password = getpass.getpass("Robinhood password: ")
-        payload['password'] = password
+        if os.environ["ROBINHOOD_PASSWORD"]:
+            payload['password'] = os.environ["ROBINHOOD_PASSWORD"]
+        else:
+            payload['password'] = getpass.getpass("Enter Robinhood password:\n")    
+        
+    if not qrcode:
+        if os.environ["ROBINHOOD_QRCODE"]:
+            payload['mfa_code'] = get_mfa_token(os.environ["ROBINHOOD_QRCODE"])
+        else:
+            payload['mfa_code'] = get_mfa_token(input("Enter Robinhood MFA code: "))
 
     data = helper.request_post(url, payload)
     # Handle case where mfa or challenge is required.
     if 'mfa_required' in data:
-        mfa_token = input("Please type in the MFA code: ")
+        mfa_token = get_mfa_token(payload['qrcode'])
         payload['mfa_code'] = mfa_token
         res = helper.request_post(url, payload, jsonify_data=False)
         while (res.status_code != 200):
-            mfa_token = input(
-                "That MFA code was not correct. Please type in another MFA code: ")
+            mfa_token = input("That MFA code was not correct. Please type in another MFA code: ")
             payload['mfa_code'] = mfa_token
             res = helper.request_post(url, payload, jsonify_data=False)
         data = res.json()

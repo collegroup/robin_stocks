@@ -4,12 +4,7 @@ import robin_stocks as r
 This is an example script that will show you how to close option positions.
 '''
 
-#!!! Fill out username and password
-username = ''
-password = ''
-#!!!
-
-login = r.login(username, password)
+login = r.login()
 
 # Let's say you bought five 4/20/20 calls of spy at 300 for 1.00 per contract.
 # You would like to sell the calls for 2.00 per contract so you double your money (minus premium).

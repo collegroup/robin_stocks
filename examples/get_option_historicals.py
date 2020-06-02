@@ -13,12 +13,7 @@ NOTE: closing prices are plotted in red and opening prices plotted in blue.
 Matplotlib also has a candlestick option that you can use.
 '''
 
-#!!! Fill out username and password
-username = ''
-password = ''
-#!!!
-
-login = r.login(username,password)
+login = r.login()
 
 #!!! fill out the specific option information
 symbol = 'V'

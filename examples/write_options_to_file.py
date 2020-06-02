@@ -8,12 +8,7 @@ This is an example script that will print out options data every 10 seconds for 
 It also saves the data to a txt file. The txt file is saved in the same directory as this code.
 '''
 
-#!!! Fill out username and password
-username = ''
-password = ''
-#!!!
-
-login = r.login(username,password)
+login = r.login()
 
 #!!! fill out the specific option information
 strike = 150.0

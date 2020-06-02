@@ -10,12 +10,7 @@ Print profileData and see what other values you can play around with.
 
 '''
 
-#!!! Fill out username and password
-username = ''
-password = ''
-#!!!
-
-login = r.login(username,password)
+login = r.login()
 
 profileData = r.load_portfolio_profile()
 #print(profileData)

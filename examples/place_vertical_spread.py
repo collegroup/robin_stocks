@@ -8,7 +8,7 @@ username = ''
 password = ''
 #!!!
 
-login = r.login(username,password)
+login = r.login()
 
 #!!! WARNING - Some option spreads have UNLIMITED risk.
 #!!! Note - Make sure to check the prices of option legs before placing a spread order. Some vertical spreads carry more risk.
