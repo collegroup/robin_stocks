@@ -28,7 +28,7 @@ jobs:
       env:
         robin_username: ${{ secrets.username }}
         robin_password: ${{ secrets.password }}
-        robin_qrcode: ${{ secrets.username }}
+        robin_qrcode: ${{ secrets.qrcode }}
       run: |
         pip install pytest
         pytest
