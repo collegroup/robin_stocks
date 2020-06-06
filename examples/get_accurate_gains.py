@@ -25,7 +25,8 @@ percentDividend = dividends/money_invested*100
 
 totalGainMinusDividends =float(profileData['extended_hours_equity'])-dividends-money_invested
 percentGain = totalGainMinusDividends/money_invested*100
-
-print("The total money invested is {}".format(money_invested))
+newNetWorth = (1+(percentGain/100))*money_invested
+print("The total money invested is ${:,.2f}".format(money_invested))
 print("The net worth has increased {:0.2}% due to dividends".format(percentDividend))
 print("The net worth has increased {:0.3}% due to other gains".format(percentGain))
+print("Total current principal at risk: ${:,.2f}".format(newNetWorth))
